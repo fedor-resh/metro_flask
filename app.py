@@ -5,6 +5,7 @@ import pickle
 import pandas as pd
 from datetime import datetime
 from translate import line, dicts
+from maxes import max_values
 app = Flask(__name__)
 CORS(app)
 @app.route('/', methods=['POST'])
@@ -12,8 +13,7 @@ def predict_all():  # put application's code here
     data = request.get_json()
     datetime = data['datetime']
     pred = predict_all(datetime)
-    m = max(pred.values())
-    return {'stations': {key: value/m for key, value in pred.items()}}
+    return {'stations': {key: value for key, value in pred.items()}}
 
 def process_datetime(date):
     date = date + ':00'
@@ -36,6 +36,7 @@ def predict_all(datetime):
                 columns=model.feature_names_in_
             )
         )[0]
+    res = {key: value/max_values[key] for key, value in res.items()}
     reversed_translator = {v: k for k, v in dicts['station'].items()}
     res = {reversed_translator[k]: v for k, v in res.items()}
     return res
@@ -44,6 +45,5 @@ with open('model.pkl', 'rb') as f:
 with open('le.pkl', 'rb') as f:
     le = pickle.load(f)
 
-print('hello')
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(host='0.0.0.0')
