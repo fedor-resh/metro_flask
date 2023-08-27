@@ -5,7 +5,8 @@ import pickle
 import pandas as pd
 from datetime import datetime
 from translate import line, dicts
-from maxes import max_values
+from translate import max_bandwidth as max_values
+# from maxes import max_values
 app = Flask(__name__)
 CORS(app)
 @app.route('/', methods=['POST'])
