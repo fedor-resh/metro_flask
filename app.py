@@ -6,12 +6,16 @@ import pickle
 import pandas as pd
 from datetime import datetime
 from translate import line, dicts
-from translate import max_bandwidth as max_values
-# from maxes import max_values
+from translate import max_bandwidth
+from functools import lru_cache
+from maxes import max_values
 app = Flask(__name__)
 CORS(app)
+@app.route('/', methods=['GET'])
+def get():
+    return 'hello'
 @app.route('/', methods=['POST'])
-def predict_all():  # put application's code here
+def post():  # put application's code here
     data = request.get_json()
     datetime = data['datetime']
     pred = predict_all(datetime)
@@ -26,6 +30,8 @@ def process_datetime(date):
     day_of_week = parsed_datetime.weekday()
     day = parsed_datetime.day
     return is_weekend, month, hour, day_of_week, day
+
+@lru_cache(maxsize=30)
 def predict_all(datetime):
     res = {}
     for station in line:
@@ -38,9 +44,9 @@ def predict_all(datetime):
                 columns=model.feature_names_in_
             )
         )[0]
-    res = {key: value/max_values[key] for key, value in res.items()}
+    res = {key: value for key, value in res.items()}
     reversed_translator = {v: k for k, v in dicts['station'].items()}
-    res = {reversed_translator[k]: v for k, v in res.items()}
+    res = {reversed_translator[k]: min(1, v/max_values[k]) for k, v in res.items()}
     return res
 with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
