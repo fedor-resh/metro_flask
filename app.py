@@ -48,4 +48,4 @@ with open('le.pkl', 'rb') as f:
     le = pickle.load(f)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run()
