@@ -1,18 +1,16 @@
-
 from flask import Flask, request
 from flask_cors import CORS
-import re
 import pickle
 import pandas as pd
 from datetime import datetime
 from translate import line, dicts
-from translate import max_bandwidth
 from functools import lru_cache
 from maxes import max_values
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 @app.route('/', methods=['GET'])
 def get():
+    print('hello world!')
     return 'hello'
 @app.route('/', methods=['POST'])
 def post():  # put application's code here
@@ -54,4 +52,5 @@ with open('le.pkl', 'rb') as f:
     le = pickle.load(f)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(ssl_context='adhoc')
+
